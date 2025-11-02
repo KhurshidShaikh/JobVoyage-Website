@@ -29,7 +29,7 @@ const Chatbot = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/chat', {
+            const response = await fetch('http://localhost:5002/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: input })
@@ -58,13 +58,18 @@ const Chatbot = () => {
     };
 
     return (
-        <div className="fixed bottom-5 right-5 z-50">
+        <div className="fixed bottom-5 right-5 z-[9999]">
             <AnimatePresence>
                 {!isOpen && (
                     <motion.button
                         onClick={() => setIsOpen(true)}
-                        className="bg-blue-600 text-white p-3 rounded-full shadow-md hover:bg-blue-700 transition-colors duration-200"
+                        className="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors duration-200 z-[9999]"
                         aria-label="Open Chatbot"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                     >
                         <MessageCircle size={24} />
                     </motion.button>
@@ -73,7 +78,13 @@ const Chatbot = () => {
 
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div className="w-96 bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
+                    <motion.div 
+                        className="w-96 bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200 z-[9999]"
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                    >
                         <div className="flex justify-between items-center bg-gray-50 border-b p-4">
                             <h2 className="text-lg font-semibold">Job Seeker Assistant</h2>
                             <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-700" aria-label="Close Chatbot">

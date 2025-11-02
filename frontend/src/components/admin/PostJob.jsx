@@ -123,11 +123,11 @@ const PostJob = () => {
     };
 
     return (
-        <div style={{ marginTop: '100px' }}>
+        <div className="min-h-screen pt-20 sm:pt-24 pb-8">
             <Navbar />
-            <div className='flex items-center justify-center w-screen my-5'>
-                <form onSubmit={submitHandler} className='p-8 max-w-4xl border border-gray-200 shadow-lg rounded-md'>
-                    <div className='grid grid-cols-2 gap-2'>
+            <div className='flex items-center justify-center w-full px-4 sm:px-6 my-5'>
+                <form onSubmit={submitHandler} className='p-4 sm:p-6 lg:p-8 w-full max-w-4xl border border-gray-200 shadow-lg rounded-md'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4'>
                         <div>
                             <Label>Title</Label>
                             <Input

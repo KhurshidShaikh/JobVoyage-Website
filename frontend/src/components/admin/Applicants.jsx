@@ -87,21 +87,23 @@ const Applicants = () => {
     };
 
     return (
-        <div style={{ marginTop: '100px' }}>
+        <div className="min-h-screen pt-20 sm:pt-24 pb-8">
             <Navbar />
-            <div className='max-w-6xl mx-auto'>
-                <h1 className='font-bold text-xl my-5'>Applicants {applicants?.applications?.length}</h1>
+            <div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
+                <h1 className='font-bold text-lg sm:text-xl my-5'>Applicants ({applicants?.applications?.length})</h1>
 
                 <div className='flex items-center justify-end my-5'>
-                    <Button onClick={handleRankApplicants} className="hover-#2C2C3E-500">
+                    <Button onClick={handleRankApplicants} className="hover-#2C2C3E-500 w-full sm:w-auto">
                         Rank Applicants
                     </Button>
                 </div>
 
-                <ApplicantsTable
-                    applicants={showRanking ? rankedApplicants : applicants?.applications}
-                    showRanking={showRanking}
-                />
+                <div className="overflow-x-auto">
+                    <ApplicantsTable
+                        applicants={showRanking ? rankedApplicants : applicants?.applications}
+                        showRanking={showRanking}
+                    />
+                </div>
             </div>
         </div>
     );

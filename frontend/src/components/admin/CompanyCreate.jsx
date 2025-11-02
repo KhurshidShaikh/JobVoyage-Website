@@ -33,11 +33,11 @@ const CompanyCreate = () => {
         }
     }
     return (
-        <div style={{ marginTop: '100px' }}>
+        <div className="min-h-screen pt-20 sm:pt-24 pb-8">
             <Navbar />
-            <div className='max-w-4xl mx-auto'>
-                <div className='my-10'>
-                    <h1 className='font-bold text-2xl'>Company Name</h1>
+            <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
+                <div className='my-6 sm:my-10'>
+                    <h1 className='font-bold text-xl sm:text-2xl'>Company Name</h1>
                 </div>
 
                 <Label>Company Name</Label>
@@ -47,9 +47,9 @@ const CompanyCreate = () => {
                     placeholder="Google, Microsoft etc."
                     onChange={(e) => setCompanyName(e.target.value)}
                 />
-                <div className='flex items-center gap-2 my-10'>
-                    <Button variant="outline" onClick={() => navigate("/admin/companies")}>Cancel</Button>
-                    <Button onClick={registerNewCompany}>Continue</Button>
+                <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 my-6 sm:my-10'>
+                    <Button variant="outline" onClick={() => navigate("/admin/companies")} className="w-full sm:w-auto">Cancel</Button>
+                    <Button onClick={registerNewCompany} className="w-full sm:w-auto">Continue</Button>
                 </div>
             </div>
         </div>

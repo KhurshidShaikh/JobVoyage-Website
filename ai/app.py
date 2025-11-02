@@ -1,11 +1,11 @@
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import requests
+import google.generativeai as genai
 from dotenv import load_dotenv
 import logging
 import traceback
-import re  # Import the regular expression module
+import re
 
 
 # Load environment variables
@@ -18,9 +18,18 @@ CORS(app)  # Enable CORS for frontend communication
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 app.logger.setLevel(logging.DEBUG)
 
-# Read API key and URL from .env file
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GROQ_API_URL = os.getenv("GROQ_API_URL")
+# Read Gemini API key from .env file
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Configure Gemini
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+    model = genai.GenerativeModel('gemini-2.5-flash')
+    print(f"GEMINI_API_KEY loaded: {GEMINI_API_KEY[:10]}...")
+else:
+    print("WARNING: GEMINI_API_KEY not found in environment variables!")
+    print("Please check your .env file in the ai directory.")
+    model = None
 
 
 def sanitize_input(text):
@@ -29,39 +38,44 @@ def sanitize_input(text):
     return text[:500]  # Limit length to prevent abuse
 
 
-def call_groq_api(user_input, api_key=GROQ_API_KEY, api_url=GROQ_API_URL):
+def call_gemini_api(user_input):
     """
-    Encapsulates the Groq API call.
+    Call Gemini API with JobVoyage-specific context.
     """
-    prompt_prefix = """You are a helpful and concise assistant on a job portal. Your purpose is to assist job seekers with questions related to:
+    if not model:
+        raise Exception("Gemini model not initialized. Check your API key.")
+    
+    job_portal_context = """You are JobVoyage AI Assistant, a specialized chatbot for the JobVoyage job portal website. 
 
-*   Finding relevant job postings
-*   Creating effective resumes and cover letters
-*   Preparing for job interviews
-*   Information about companies listed on the job portal
-*   Navigating the job portal website and how job seeker can apply for jobs in portal
+ABOUT JOBVOYAGE:
+- JobVoyage is a comprehensive job portal connecting job seekers with employers
+- Features: Job search, resume upload, company profiles, application tracking
+- Locations: Focuses on Indian job market (Bangalore, Mumbai, Delhi NCR, Pune, Hyderabad)
+- Industries: IT, Software Development, Data Science, Design, DevOps
+- Companies: Partners with top Indian IT companies like Infosys, TCS, Wipro, Tech Mahindra, HCL
 
-If a user asks a question that is NOT related to these topics, respond with: "I'm sorry, I can only answer questions related to job searching and the job portal."
+YOUR ROLE:
+- Help job seekers navigate the platform
+- Provide career advice and job search tips
+- Answer questions about resume writing, interview preparation
+- Explain how to use JobVoyage features
+- Suggest relevant jobs based on skills/location
 
-Keep your answers brief and to the point, ideally no more than 3-5 sentences.
-Format the answer as a clear, readable list or concise paragraph, avoiding bullet points or asterisks.
-Do not add any introductory or concluding phrases ("I can help you with that!", "In conclusion," etc.). Just directly answer the user's question.
-"""
+RESPONSE GUIDELINES:
+- Keep answers concise (2-4 sentences)
+- Focus only on job-related topics and JobVoyage platform
+- If asked about non-job topics, politely redirect: "I can only help with job searching and career advice on JobVoyage."
+- Be helpful, professional, and encouraging
 
-    full_prompt = prompt_prefix + "\n" + user_input  # Prepend the prompt
+USER QUESTION: """
 
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    payload = {
-        "model": "llama3-8b-8192",  # Update based on your Groq model
-        "messages": [{"role": "user", "content": full_prompt}]  # Use the combined prompt
-    }
+    full_prompt = job_portal_context + user_input
 
     try:
-        response = requests.post(GROQ_API_URL, headers=headers, json=payload)
-        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
-        return response.json()  # Return the JSON response
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Groq API request failed: {str(e)}")  # Re-raise as a generic Exception
+        response = model.generate_content(full_prompt)
+        return response.text
+    except Exception as e:
+        raise Exception(f"Gemini API request failed: {str(e)}")
 
 
 def truncate_response(text, max_sentences=3):
@@ -73,42 +87,34 @@ def truncate_response(text, max_sentences=3):
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        # Check for API Key and URL early
-        if not GROQ_API_KEY:
-            app.logger.error("GROQ_API_KEY is not set in the environment.")
-            return jsonify({"error": "Server configuration error: GROQ_API_KEY not set."}), 500
-
-        if not GROQ_API_URL:
-            app.logger.error("GROQ_API_URL is not set in the environment.")
-            return jsonify({"error": "Server configuration error: GROQ_API_URL not set."}), 500
-
+        # Check if Gemini model is initialized
+        if not model:
+            app.logger.error("Gemini model not initialized. Check API key.")
+            return jsonify({"error": "Server configuration error: Gemini API key not set."}), 500
 
         user_input = request.json.get("message")
         if not user_input:
-            app.logger.warning("No message provided")  # Log warning
+            app.logger.warning("No message provided")
             return jsonify({"error": "No message provided"}), 400
 
         # Sanitize Input
-        user_input = sanitize_input(user_input.strip())  # Sanitize user input
+        user_input = sanitize_input(user_input.strip())
 
-        # Call the Groq API using the encapsulated function
+        # Call Gemini API
         try:
-            groq_response = call_groq_api(user_input, GROQ_API_KEY)
-
-            bot_reply = groq_response.get("choices", [{}])[0].get("message", {}).get("content", "")
-            bot_reply = truncate_response(bot_reply) # Truncate the response
+            bot_reply = call_gemini_api(user_input)
+            bot_reply = truncate_response(bot_reply)
 
             return jsonify({"reply": bot_reply})
 
-        except Exception as e:  # Handle exceptions from call_groq_api
-            app.logger.error(f"Groq API error: {str(e)}")
-            return jsonify({"error": f"Groq API error: {str(e)}"}), 500
-
+        except Exception as e:
+            app.logger.error(f"Gemini API error: {str(e)}")
+            return jsonify({"error": f"Gemini API error: {str(e)}"}), 500
 
     except Exception as e:
-        traceback.print_exc()  # Print traceback to console
+        traceback.print_exc()
         app.logger.error(f"Error in /chat route: {str(e)}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5002)

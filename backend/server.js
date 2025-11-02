@@ -10,6 +10,7 @@ import jobRoute from './routes/jobRoute.js';
 import applicationRoute from './routes/appRoute.js';
 import emailRoute from './routes/emailRoute.js';
 import rankRoutes from './routes/rankRoute.js';
+import bookmarkRoute from './routes/bookmarkRoute.js';
 import axios from 'axios';
 import { User } from './models/User.js';
 import Authenticate from './middlewares/isAuthenticated.js';
@@ -32,6 +33,7 @@ app.use("/api/job", jobRoute);
 app.use("/api/application", applicationRoute);
 app.use("/api/email", emailRoute);
 app.use("/api/job", rankRoutes);
+app.use("/api/bookmark", bookmarkRoute);
 
 app.get('/api/user/get-recommended-jobs', Authenticate, async (req, res) => {
     try {
@@ -62,4 +64,11 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
     await connectDB();
     console.log(`Server running at http://localhost:${PORT}`);
+    console.log('Available routes:');
+    console.log('- /api/user');
+    console.log('- /api/company');
+    console.log('- /api/job');
+    console.log('- /api/application');
+    console.log('- /api/email');
+    console.log('- /api/bookmark');
 });

@@ -93,16 +93,16 @@ const CompanySetup = () => {
     };
 
     return (
-        <div style={{ marginTop: "100px" }}>
+        <div className="min-h-screen pt-20 sm:pt-24 pb-8">
             <Navbar />
-            <div className="max-w-xl mx-auto my-10 bg-white p-8 shadow-md rounded-lg">
+            <div className="max-w-xl mx-auto px-4 sm:px-6 my-6 sm:my-10 bg-white p-4 sm:p-6 lg:p-8 shadow-md rounded-lg">
                 <form onSubmit={submitHandler}>
-                    <div className="flex items-center gap-5 pb-6 border-b">
-                        <Button onClick={() => navigate("/admin/companies")} variant="outline" className="flex items-center gap-2 text-gray-500 font-semibold">
-                            <ArrowLeft />
-                            <span>Back</span>
+                    <div className="flex items-center gap-3 sm:gap-5 pb-4 sm:pb-6 border-b">
+                        <Button onClick={() => navigate("/admin/companies")} variant="outline" className="flex items-center gap-2 text-gray-500 font-semibold text-sm sm:text-base">
+                            <ArrowLeft className="w-4 h-4" />
+                            <span className="hidden sm:inline">Back</span>
                         </Button>
-                        <h1 className="font-bold text-xl">Company Setup</h1>
+                        <h1 className="font-bold text-lg sm:text-xl">Company Setup</h1>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 my-6">

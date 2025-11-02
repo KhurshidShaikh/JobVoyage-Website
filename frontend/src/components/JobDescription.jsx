@@ -8,6 +8,7 @@ import { setSingleJob } from '@/redux/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import Navbar from './shared/Navbar';
+import BookmarkButton from './ui/BookmarkButton';
 
 const JobDescription = () => {
     const { singleJob } = useSelector(store => store.job);
@@ -62,43 +63,63 @@ const JobDescription = () => {
     }, [jobId, dispatch, user?._id]);
 
     return (
-        <div className="max-w-6xl mx-auto my-10 p-6 bg-white shadow-md rounded-lg"  style={{ marginTop: '100px' }}>
+        <div className="max-w-6xl mx-auto my-10 px-4 sm:px-6 lg:px-8">
             <Navbar />
-            <div className="flex items-center justify-between border-b pb-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-800">{singleJob?.title}</h1>
-                    <div className="flex items-center gap-2 mt-2">
-                        <Badge className="text-blue-700 font-bold" variant="ghost">{singleJob?.position} Positions</Badge>
-                        <Badge className="text-[#F83002] font-bold" variant="ghost">{singleJob?.jobType}</Badge>
-                        <Badge className="text-[#7209b7] font-bold" variant="ghost">{singleJob?.salary} LPA</Badge>
+            <div className="bg-white shadow-md rounded-lg p-4 sm:p-6 lg:p-8 mt-16 sm:mt-20">
+                {/* Header Section */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-4 border-b">
+                    <div className="flex-1">
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">{singleJob?.title}</h1>
+                        <div className="flex flex-wrap gap-2">
+                            <Badge className="text-blue-700 font-bold text-xs" variant="ghost">{singleJob?.position} Positions</Badge>
+                            <Badge className="text-[#F83002] font-bold text-xs" variant="ghost">{singleJob?.jobType}</Badge>
+                            <Badge className="text-[#7209b7] font-bold text-xs" variant="ghost">{singleJob?.salary} LPA</Badge>
+                        </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                        <BookmarkButton jobId={jobId} className="bg-gray-50 hover:bg-gray-100 w-full sm:w-auto" />
+                        <Button
+                            onClick={isApplied ? null : applyJobHandler}
+                            disabled={isApplied}
+                            className={`rounded-lg px-4 py-2 w-full sm:w-auto ${isApplied ? 'bg-gray-600 cursor-not-allowed' : 'bg-[dodgerblue] hover:bg-[#5f32ad]'}`}>
+                            {isApplied ? 'Already Applied' : 'Apply Now'}
+                        </Button>
                     </div>
                 </div>
-                <Button
-                    onClick={isApplied ? null : applyJobHandler}
-                    disabled={isApplied}
-                    className={`rounded-lg px-4 py-2 ${isApplied ? 'bg-gray-600 cursor-not-allowed' : 'bg-[dodgerblue] hover:bg-[#5f32ad]'}`}>
-                    {isApplied ? 'Already Applied' : 'Apply Now'}
-                </Button>
-            </div>
 
-            {/* Job Details Section */}
-            <div className="mt-6">
-                <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">Job Details</h2>
-                <div className="mt-4 space-y-3">
-                    <h3 className="font-bold text-gray-700">Role: <span className="font-normal text-gray-800">{singleJob?.title}</span></h3>
-                    <h3 className="font-bold text-gray-700">Location: <span className="font-normal text-gray-800">{singleJob?.location}</span></h3>
-                    <h3 className="font-bold text-gray-700">Description:</h3>
-                    <p className="text-gray-800 leading-relaxed">{singleJob?.description}</p>
-                    <h3 className="font-bold text-gray-700">Requirements:</h3>
-                    <p className="text-gray-800">{singleJob?.requirements}</p>
-                    <h3 className="font-bold text-gray-700">Experience: <span className="font-normal text-gray-800">{singleJob?.experienceLevel} years</span></h3>
-                    <h3 className="font-bold text-gray-700">Salary: <span className="font-normal text-gray-800">{singleJob?.salary} LPA</span></h3>
-                    <h3 className="font-bold text-gray-700">Total Applicants: <span className="font-normal text-gray-800">{singleJob?.applications?.length}</span></h3>
-                    <h3 className="font-bold text-gray-700">Posted Date: <span className="font-normal text-gray-800">{singleJob?.createdAt?.split("T")[0]}</span></h3>
+                {/* Job Details Section */}
+                <div className="mt-6">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 border-b pb-2 mb-4">Job Details</h2>
+                    <div className="space-y-4">
+                        <div>
+                            <h3 className="font-bold text-gray-700 text-sm sm:text-base">Role: <span className="font-normal text-gray-800">{singleJob?.title}</span></h3>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-700 text-sm sm:text-base">Location: <span className="font-normal text-gray-800">{singleJob?.location}</span></h3>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-700 text-sm sm:text-base mb-2">Description:</h3>
+                            <p className="text-gray-800 leading-relaxed text-sm sm:text-base">{singleJob?.description}</p>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-700 text-sm sm:text-base mb-2">Requirements:</h3>
+                            <p className="text-gray-800 text-sm sm:text-base">{singleJob?.requirements}</p>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-700 text-sm sm:text-base">Experience: <span className="font-normal text-gray-800">{singleJob?.experienceLevel} years</span></h3>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-700 text-sm sm:text-base">Salary: <span className="font-normal text-gray-800">{singleJob?.salary} LPA</span></h3>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-700 text-sm sm:text-base">Total Applicants: <span className="font-normal text-gray-800">{singleJob?.applications?.length}</span></h3>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-700 text-sm sm:text-base">Posted Date: <span className="font-normal text-gray-800">{singleJob?.createdAt?.split("T")[0]}</span></h3>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-
         </div>
     );
 };
